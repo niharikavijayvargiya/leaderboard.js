@@ -1,145 +1,84 @@
-/* Resetting default margin and padding */
-* {
-    margin: 0;
-    padding: 0;
-}
+let players = [];
 
-/* General styling for the entire page */
-body {
-    text-align: center;
-    font-family: sans-serif;
-    min-height: 100vh;
-    color: #252525;
-    background: #fcfcfc;
-    font-weight: 300;
-    display: grid;
-    justify-content: center;
-    padding: 3em 0;
-}
+document.getElementById('addPlayerButton').addEventListener('click', addPlayer);
+document.getElementById('playerScoreButton').addEventListener('click', addPlayerScore);
 
-/* Main content container styling */
-main {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 2em;
-}
+function addPlayer() {
+    const playerName = document.getElementById('playerName').value.trim();
+    const startingScore = parseInt(document.getElementById('startingScore').value.trim());
 
-/* Title styling */
-.main_title {
-    font-size: 1.5em;
-    width: 80%;
-}
+    if (playerName && !isNaN(startingScore)) {
+        const player = {
+            name: playerName,
+            score: startingScore
+        };
 
-/* Form styling */
-.main_form {
-    display: grid;
-    gap: .6em;
-    justify-items: center;
-}
+        players.push(player);
 
-/* Input field styling */
-input {
-    all: unset;
-    padding: .5em .8em;
-    width: 80%;
-    border: 1px solid lightgreen;
-    text-align: start;
-    color: #131313;
-}
-
-input:focus {
-    border: 3px solid green;
-}
-
-/* Error prompter styling */
-.main_error-prompter {
-    color: #ff7864;
-    font-weight: 700;
-    font-size: 1em;
-    display: none;
-}
-
-/* Button styling */
-button:not(.main_form-submit-btn) {
-    all: unset;
-    border-radius: 50%;
-    background: lightgreen;
-    width: 60px;
-    height: 60px;
-    transition: all .5s ease;
-}
-
-.main_form-submit-btn {
-    all: unset;
-    width: 10em;
-    background: lightgreen;
-    padding: .7em 0;
-    transition: all .5s ease;
-}
-
-button:active {
-    transform: scale(.95) translateY(5px);
-    filter: brightness(.9);
-}
-
-/* Scoreboard container styling */
-.main_scoreboard-wrapper {
-    width: 100%;
-    display: grid;
-    justify-items: center;
-    gap: 1em;
-}
-
-/* Individual scoreboard item styling */
-.main_scoreboard {
-    display: grid;
-    justify-items: center;
-    gap: .3em;
-    width: 90%;
-    background: lightgreen;
-    text-transform: uppercase;
-    padding: 1em 0;
-}
-
-/* Player name styling */
-.main_player-name {
-    font-weight: 400;
-}
-
-/* Timestamp styling */
-.main_time-stamp {
-    color: #686868;
-    font-size: .8em;
-}
-
-/* Button container styling */
-.main_scoreboard-btn-container {
-    margin: 1em;
-    display: flex;
-    gap: .5em;
-}
-
-/* Media query for larger screens */
-@media (min-width: 35.25em) {
-    .main_title {
-        font-size: 2.5rem;
-        font-weight: 500;
-        font-variant: small-caps;
+        renderLeaderboard();
+    } else {
+        alert('Please enter valid player details.');
     }
+}
 
-    .main_form {
-        display: flex;
+function addPlayerScore() {
+    const playerScore = parseInt(prompt('Enter the score to add/subtract:'));
+    if (!isNaN(playerScore)) {
+        players.forEach((player, index) => {
+            players[index].score += playerScore;
+        });
+        renderLeaderboard();
+    } else {
+        alert('Please enter a valid number for score adjustment.');
     }
+}
 
-    .main_scoreboard {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-    }
+function renderLeaderboard() {
+    const leaderboardTable = document.getElementById('leaderboardTable');
+    const tbody = leaderboardTable.getElementsByTagName('tbody')[0];
 
-    input {
-        width: 10em;
-    }
+    tbody.innerHTML = '';
+
+    players.forEach((player, index) => {
+        const row = tbody.insertRow();
+
+        const firstNameCell = row.insertCell(0);
+        firstNameCell.textContent = player.firstName;
+
+        const lastNameCell = row.insertCell(1);
+        lastNameCell.textContent = player.lastName;
+
+        const countryCell = row.insertCell(2);
+        countryCell.textContent = player.country;
+
+        const scoreCell = row.insertCell(3);
+        scoreCell.textContent = player.score;
+
+        const adjustCell = row.insertCell(4);
+        const plusButton = document.createElement('button');
+        plusButton.textContent = '+5';
+        plusButton.addEventListener('click', () => adjustScore(index, 5));
+        const minusButton = document.createElement('button');
+        minusButton.textContent = '-5';
+        minusButton.addEventListener('click', () => adjustScore(index, -5));
+        adjustCell.appendChild(plusButton);
+        adjustCell.appendChild(minusButton);
+
+        const deleteCell = row.insertCell(5);
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('delete-button');
+        deleteButton.addEventListener('click', () => deletePlayer(index));
+        deleteCell.appendChild(deleteButton);
+    });
+}
+
+function adjustScore(index, value) {
+    players[index].score += value;
+    renderLeaderboard();
+}
+
+function deletePlayer(index) {
+    players.splice(index, 1);
+    renderLeaderboard();
 }
